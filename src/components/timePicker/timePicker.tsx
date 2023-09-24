@@ -1,11 +1,12 @@
 import React, { useEffect } from "react";
-import { View, Text } from "react-native";
-import { Button, List } from 'react-native-paper';
+import { Button } from 'react-native-paper';
 import { TimePickerModal } from 'react-native-paper-dates';
 import { useState, useCallback } from "react";
 import scheduleLogAtTime from "../../../utils/helpers/time";
 import { Time } from "utils/models/time";
 import useStore from "../../../store/store"; 
+import { ButtonContainer, CurrTimeText, HistoryTimeText, OutlineButton, TimePickerContainer } from "./timePicker.style";
+import Card from "../Card/card";
  
 export default function TimePicker() {
   const [visible, setVisible] = useState(false);
@@ -34,7 +35,6 @@ export default function TimePicker() {
 
   const onConfirm = useCallback(
     ({ hours, minutes, seconds }: Time) => {
-      console.log({ hours, minutes, seconds }) 
       state.increase({
         hours,
         minutes,
@@ -50,29 +50,26 @@ export default function TimePicker() {
     state.clear()
   }
 
-
-  console.log(state)
   return (
-<View>
-  <Button onPress={() => setVisible(true)} uppercase={false} mode="outlined">
+  <TimePickerContainer>
+    <ButtonContainer>
+    <OutlineButton onPress={() => setVisible(true)} uppercase={false} mode="elevated">
     Pick time
-  </Button>
-  <Button onPress={() => clearHistory()} uppercase={false} mode="outlined">
+    </OutlineButton>
+    <OutlineButton onPress={() => clearHistory()} uppercase={false} mode="elevated">
     Clear time
-  </Button>
-  <TimePickerModal
+    </OutlineButton>
+    </ButtonContainer>
+    <TimePickerModal
     visible={visible}
     onDismiss={onDismiss}
     onConfirm={onConfirm}
     hours={time.hours}
     minutes={time.minutes}
-  />
-  {time.hours !== 0 && time.minutes !== 0 && (
-    <Text>{time.hours}:{time.minutes}</Text>
-  )}
-  {state.time.map((timeItem, index) => (
-    <List.Item key={index} title={`${timeItem.hours}:${timeItem.minutes}`} />
-  ))}
-</View>
+    />
+    {time.hours !== 0 && time.minutes !== 0 && (
+    <CurrTimeText>{time.hours}:{time.minutes}</CurrTimeText>
+    )}
+  </TimePickerContainer>
   );
 }
