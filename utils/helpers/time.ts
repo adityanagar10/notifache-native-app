@@ -1,6 +1,14 @@
-import { addDays, set, isBefore, differenceInSeconds, getTime } from 'date-fns';
-import { utcToZonedTime, format } from 'date-fns-tz';
+import { utcToZonedTime } from 'date-fns-tz';
+import { schedulePushNotification } from './notification';
+import * as Notifications from 'expo-notifications';
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 export interface Time {
   hours?: number;
   minutes?: number;
@@ -35,6 +43,6 @@ export default function scheduleLogAtTime(targetTime: Time): void {
   const timeDifference: number = targetTimeInTimeZone.getTime() - currentTimeInTimeZone.getTime();
 
   const timeoutId: NodeJS.Timeout = setTimeout(() => {
-    console.log('Notification sent');
+    schedulePushNotification();
   }, timeDifference);
 }
