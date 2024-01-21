@@ -1,17 +1,20 @@
-import React, { useEffect } from "react";
-import { Button } from 'react-native-paper';
+import React, { useEffect, useState, useCallback } from 'react';
 import { TimePickerModal } from 'react-native-paper-dates';
-import { useState, useCallback } from "react";
-import scheduleLogAtTime from "../../../utils/helpers/time";
-import { Time } from "utils/models/time";
-import useStore from "../../../store/store"; 
-import { ButtonContainer, CurrTimeText, HistoryTimeText, OutlineButton, TimePickerContainer } from "./timePicker.style";
-import Card from "../Card/card";
- 
+import scheduleLogAtTime, { formatTime } from '../../../utils/helpers/time';
+import { Time } from 'utils/models/time';
+import useStore from '../../../store/store';
+import {
+  ButtonContainer,
+  CurrTimeText,
+  OutlineButton,
+  TimePickerContainer,
+  ButtonText,
+} from './timePicker.style';
+
 export default function TimePicker() {
   const [visible, setVisible] = useState(false);
   const [time, setTime] = React.useState<Time>({ hours: 0, minutes: 0, seconds: 0 });
-  const state = useStore()
+  const state = useStore();
   const onDismiss = useCallback(() => {
     setVisible(false);
   }, [setVisible]);
@@ -28,48 +31,43 @@ export default function TimePicker() {
     const intervalId = setInterval(updateCurrentTime, 1000);
 
     updateCurrentTime();
-
-    return () => clearInterval(intervalId);
   }, []);
-
 
   const onConfirm = useCallback(
     ({ hours, minutes, seconds }: Time) => {
       state.increase({
         hours,
         minutes,
-        seconds
-      })
-      scheduleLogAtTime(time);
+        seconds,
+      });
+      scheduleLogAtTime({ hours, minutes, seconds });
       setVisible(false);
     },
     [setVisible]
   );
 
   const clearHistory = () => {
-    state.clear()
-  }
+    state.clear();
+  };
 
   return (
-  <TimePickerContainer>
-    <ButtonContainer>
-    <OutlineButton onPress={() => setVisible(true)} uppercase={false} mode="elevated">
-    Pick time
-    </OutlineButton>
-    <OutlineButton onPress={() => clearHistory()} uppercase={false} mode="elevated">
-    Clear time
-    </OutlineButton>
-    </ButtonContainer>
-    <TimePickerModal
-    visible={visible}
-    onDismiss={onDismiss}
-    onConfirm={onConfirm}
-    hours={time.hours}
-    minutes={time.minutes}
-    />
-    {time.hours !== 0 && time.minutes !== 0 && (
-    <CurrTimeText>{time.hours}:{time.minutes}</CurrTimeText>
-    )}
-  </TimePickerContainer>
+    <TimePickerContainer>
+      <ButtonContainer>
+        <OutlineButton onPress={() => setVisible(true)}>
+          <ButtonText>Set Time</ButtonText>
+        </OutlineButton>
+        <OutlineButton onPress={() => clearHistory()}>
+          <ButtonText>Clear Time</ButtonText>
+        </OutlineButton>
+      </ButtonContainer>
+      <TimePickerModal
+        visible={visible}
+        onDismiss={onDismiss}
+        onConfirm={onConfirm}
+        hours={time.hours}
+        minutes={time.minutes}
+      />
+      {time.hours !== 0 && time.minutes !== 0 && <CurrTimeText>{formatTime(time)}</CurrTimeText>}
+    </TimePickerContainer>
   );
 }
